@@ -10,7 +10,7 @@
 + layout.xml
   - ConstraintLayout속성중에 ```app:layout_constraintDimensionRatio="3:1"``` 를 이용해서  
     LinearLayout 화면비율을 세로 1 : 가로 3 으로 나누고 그안에 들어가는 3개의 View에 weight를 1씩 주어 깔끔하게 영역분할
-  - ConstraintLayout안에 ImageView 2개를 서로 곂쳐서 자연스러운 fading 효과(클래스단에서 설정해주어야함) 를 주기위한 화면구성
+  - ConstraintLayout안에 ImageView 2개를 서로 곂쳐서 자연스러운 ViewAnimation 효과(클래스단에서 설정해주어야함) 를 주기위한 화면구성
   - ImageView.ScaleType [공식](https://developer.android.com/reference/android/widget/ImageView.ScaleType) , [예시](https://parkho79.tistory.com/71)
 
 + Kotlin.class
