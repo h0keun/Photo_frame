@@ -14,7 +14,7 @@
   - ImageView.ScaleType [공식](https://developer.android.com/reference/android/widget/ImageView.ScaleType) , [예시](https://parkho79.tistory.com/71)
 
 + Kotlin.class
-  - apply, with, let, also, run(따로 정리)
+  - apply, with, let, also, run(따로 정리) + as?? 하이튼 
   - 앱 권한요청 👉 [공식](https://developer.android.com/training/permissions/requesting?hl=ko)
   - 갤러리에서 이미지 가져오기
     ```KOTLIN
