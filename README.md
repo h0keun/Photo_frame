@@ -127,3 +127,4 @@
 💡 URI vs URL vs URN  
 💡 Intent.ACTION 에는 어떤것들이 존재할까?  
 💡 ContentProvider - uri 심화적으로 알아보기
+💡 Matisse 라이브러리를 통해 갤러연동해서 해보기!
