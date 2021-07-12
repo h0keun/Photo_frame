@@ -1,27 +1,101 @@
 ### Photo_frame
 
-+ Android Premission(load image)
-+ View Animation
++ Android Premission(load image) : 액티비티에서 외부저장소 접근
++ View Animation : 뷰 에니메이터를 이용. fade-in/out 처럼 보이도록 구현
 + Activity Lifecycle
-+ Content Provider(SAF : Storage Access Framework)
++ Content Provider(SAF : Storage Access Framework) : 스마트폰 저장소의 사진선택
 
-### 2021.05.11
+<img src="https://user-images.githubusercontent.com/63087903/125246426-bd5d3300-e32c-11eb-9787-23b4ca72eda3.jpg" width="200" height="430"> <img src="https://user-images.githubusercontent.com/63087903/125246425-bcc49c80-e32c-11eb-8df0-f2e228ff9450.jpg" width="200" height="430"> <img src="https://user-images.githubusercontent.com/63087903/125246423-bb936f80-e32c-11eb-8ecc-ebe6a418c026.jpg" width="200" height="430">
 
-+ layout.xml
-  - ConstraintLayout속성중에 ```app:layout_constraintDimensionRatio="3:1"``` 를 이용해서  
-    LinearLayout 화면비율을 세로 1 : 가로 3 으로 나누고 그안에 들어가는 3개의 View에 weight를 1씩 주어 깔끔하게 영역분할
-  - ConstraintLayout안에 ImageView 2개를 서로 곂쳐서 자연스러운 ViewAnimation 효과(클래스단에서 설정해주어야함) 를 주기위한 화면구성
-  - ImageView.ScaleType [공식](https://developer.android.com/reference/android/widget/ImageView.ScaleType) , [예시](https://parkho79.tistory.com/71)
+### [2021-05-11]
+### [2021-07-12]
 
-+ Kotlin.class
-  - apply, with, let, also, run(따로 정리) + as?? 하이튼 
-  - 앱 권한요청 👉 [공식](https://developer.android.com/training/permissions/requesting?hl=ko)
-  - 갤러리에서 이미지 가져오기
+#### manifest 
++ 유저 퍼미션, 액티비티 추가
+  ```KOTLIN
+  * 외부 스토리지 읽기권한 추가
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+  * 슬라이드 포토를 보여줄 액티비티 추가
+  <activity android:name=".PhotoFrameActivity"
+    android:screenOrientation="landscape"/>
+   
+  // 보통 많이 사용되는 orientation값은
+  // Portrait(세로모드 유지)
+  // landscape(가로모드 유지)
+  // fullSensor(기기의 sensor에 다라서 방향이 결정)
+  // 따로 설정해주지 않으면 default 값으로 unspecified 가 적용되고 이는 시스템에 설정된 값에 따라 화면방향이 결정된다.
+  ```
++ 권한 받아오기(MainActivity.kt 코드 참조)
+  ```KOTLIN
+  private fun initAddPhotoButton() {
+      addPhotoButton.setOnClickListener {
+          when {
+              ContextCompat.checkSelfPermission(
+                      this,
+                      android.Manifest.permission.READ_EXTERNAL_STORAGE
+              ) == PackageManager.PERMISSION_GRANTED -> {
+                  navigatePhotos()
+              }
+              shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE) -> {
+                  showPermissionContextPopup()
+              }
+              else -> {
+                  requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1000)
+              }
+          }
+      }
+  }
+  
+  * 초기에 
+  ```
+#### layout.xml (activity_main.xml / activity_photoframe.xml)
++ acivity_main.xml
+  ```KOTLIN  
+  <androidx.constraintlayout.widget.ConstraintLayout
+    ...
+    <LinearLayout
+      ...
+      app:layout_constraintDimensionRatio="3:1"
+      ... >
+        <ImageView
+          ...
+          android:scaleType="centerCrop"
+          android:layout_weight="1"/>
+        
+        <ImageView
+          ...
+          android:scaleType="centerCrop"
+          android:layout_weight="1"/>
+        
+        <ImageView
+          ...
+          android:scaleType="centerCrop"
+          android:layout_weight="1"/>
+      </LinearLayout>
+      
+      ... 6개의 칸을 만들기위해 위의 LinearLayout을 반복
+      
+  </ConstraintLayout>
+  
+  * ConstraintLayout속성을 이용해 영역을 분할하여 LinearLayout에 3개의 ImageView를 배치 
+  * LinearLayout 화면비율을 세로 1 : 가로 3 으로 나누고,
+    그 안에 들어가는 3개의 ImageView에 weight를 1씩 주어 깔끔하게 영역분할
+  ```
++ activity_photoframe.xml
+  ```KOTLIN
+  * ConstraintLayout영역을 전부 차지하는 ImageView 2개를 서로 곂쳐서 화면 전체에 Image가 보이도록 함
+    ImageView를 겹친 이유는 자연스러운 ViewAnimation 효과(클래스단에서 설정해주어야함) 를 주기위한 화면구성이다.
+  ```
++ ImageView.ScaleType [공식](https://developer.android.com/reference/android/widget/ImageView.ScaleType) , [예시](https://parkho79.tistory.com/71)
+
+#### Kotlin.class (MainActivity.kt / PhotoFrameActivity.kt)
++ MainActivity - 갤러리에서 이미지 가져오기
     ```KOTLIN
     private fun navigatePhotos() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "image/*"
-        startActivityForResult(intent, 2000)
+        intent.type = "image/*"              // image 파일 형식 받아오기
+        startActivityForResult(intent, 2000) // requestCode: 2000으로 구분짓기
     }
     
     ...
@@ -120,11 +194,29 @@
     이 때 안드로이드 생명주기에 맞추어서 타이머를 켜거나 꺼줘야 하는데  
     ``` onStop() -> timer?.cancel() 을 onStart() -> startTimer() 를 onDestroy() -> timer?.cancel()```
 
-+ 체크할 문법
-  - .apply / ?.let / .forEachIndexed
 
+💡 apply  
+```KOTLIN
+private val imageViewList: List<ImageView> by lazy {
+    mutableListOf<ImageView>().apply {
+        add(findViewById(R.id.imageView11))
+        add(findViewById(R.id.imageView12))
+        add(findViewById(R.id.imageView13))
+        add(findViewById(R.id.imageView21))
+        add(findViewById(R.id.imageView22))
+        add(findViewById(R.id.imageView23))
+    }
+}
 
+본 프로젝트에서는 apply를 위와같이 사용했는데, 기억하기로는 apply 없이
+mutableList에 add를 하게되면 6개의 Image를 순차적으로 add해주는 것이라면
+apply는 add하는 6개의 과정을 하나로 묶어 실행된 결과를
+list에 한번에 담아주는것이라고 기억함
+
+어떠한 연속적인 과정이 주어질 때 apply로 묶어서 효율을 높일 수 있다고 들었던것 같음
+🥕 관련된 부분에 대해서는 조금더 알아보쟈
+```
 💡 URI vs URL vs URN  
 💡 Intent.ACTION 에는 어떤것들이 존재할까?  
 💡 ContentProvider - uri 심화적으로 알아보기
-💡 Matisse 라이브러리를 통해 갤러연동해서 해보기!
+💡 Matisse 라이브러리를 통해 갤러리연동해서 해보기!
